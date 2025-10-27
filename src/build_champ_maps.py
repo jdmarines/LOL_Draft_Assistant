@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 
-DD_CHAMPS_PATH = Path("data/raw/champion.json")
+DD_CHAMPS_PATH = Path("data/raw/championFull.json")
 
 OUT_SIMPLE = Path("champ_id_map.json")
 OUT_EXTENDED = Path("champ_id_map_extended.json")
