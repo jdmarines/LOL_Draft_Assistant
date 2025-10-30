@@ -95,15 +95,25 @@ def summarize_metrics(y_true, proba, threshold=0.5):
     return out
 
 def save_report(path: Path, header: str, metrics: dict):
+    def write_kv(f, k, v, indent=0):
+        pad = "  " * indent
+        # Si es dict, escribir sección y recorrer recursivamente
+        if isinstance(v, dict):
+            f.write(f"{pad}[{k}]\n")
+            for kk, vv in v.items():
+                write_kv(f, kk, vv, indent + 1)
+            return
+        # Formatear números con 4 decimales
+        if isinstance(v, (int, float, np.integer, np.floating)):
+            f.write(f"{pad}{k}: {float(v):.4f}\n")
+        else:
+            # Otros tipos: listas, strings, None, etc.
+            f.write(f"{pad}{k}: {v}\n")
+
     with open(path, "w", encoding="utf-8") as f:
-        f.write(header.strip()+"\n\n")
-        for k,v in metrics.items():
-            if isinstance(v, dict):
-                f.write(f"[{k}]\n")
-                for kk,vv in v.items():
-                    f.write(f"  {kk}: {vv:.4f}\n")
-            else:
-                f.write(f"{k}: {v}\n")
+        f.write(header.strip() + "\n\n")
+        for k, v in metrics.items():
+            write_kv(f, k, v)
 
 # -------------------------
 # Main
@@ -189,12 +199,27 @@ def main():
         n_jobs=-1,
     )
 
-    xgb.fit(
-        X_train, y_train,
-        eval_set=[(X_val, y_val)],
-        verbose=False,
-        early_stopping_rounds=200
-    )
+# Ajuste de entrenamiento: algunas versiones de xgboost no aceptan early_stopping_rounds en .fit()
+    try:
+        xgb.fit(
+            X_train, y_train,
+            eval_set=[(X_val, y_val)],
+            verbose=False,
+            early_stopping_rounds=200
+        )
+    except TypeError:
+        # Fallback a la API de callbacks (nueva en algunas versiones)
+        try:
+            from xgboost import callback
+            xgb.fit(
+                X_train, y_train,
+                eval_set=[(X_val, y_val)],
+                verbose=False,
+                callbacks=[callback.EarlyStopping(rounds=200)]
+            )
+        except Exception:
+            # Último recurso: entrenar sin early stopping
+            xgb.fit(X_train, y_train)
 
     xgb_test_proba = xgb.predict_proba(X_test)[:,1]
     xgb_test_metrics = summarize_metrics(y_test, xgb_test_proba)

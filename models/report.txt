@@ -1,0 +1,36 @@
+Modelos entrenados (seed=42)
+- Datos: data/processed/match_features_15_20_1.csv
+- Features: 201
+- Train/Val/Test = 60/20/20
+- RF: n_estimators=600 (calibrado con Platt)
+- XGB: early_stopping, hist, lr=0.02
+
+[rf_val]
+  accuracy: 0.4837
+  roc_auc: 0.4932
+  log_loss: 0.7021
+  brier: 0.2544
+  f1: 0.5183
+[rf_test]
+  accuracy: 0.5000
+  roc_auc: 0.5253
+  log_loss: 0.6931
+  brier: 0.2500
+  f1: 0.5112
+[rf_calibrated_test]
+  accuracy: 0.5098
+  roc_auc: 0.4747
+  log_loss: 0.6930
+  brier: 0.2499
+  f1: 0.6753
+[xgb_test]
+  accuracy: 0.5033
+  roc_auc: 0.5264
+  log_loss: 0.8971
+  brier: 0.3116
+  f1: 0.5220
+[class_weights]
+  0: 1.0200
+  1: 0.9807
+[shap_top20]
+  info: SHAP failed or not available.
