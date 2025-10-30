@@ -2,7 +2,7 @@ import ast
 import pandas as pd
 from pathlib import Path
 
-IN_PATH  = Path("data/matches/raw_drafts.csv")           # <-- tu archivo de entrada
+IN_PATH  = Path("data/matches/drafts.csv")           # <-- tu archivo de entrada
 OUT_PATH = Path("data/matches/matches_15_20_1.csv")      # <-- salida estándar para el pipeline
 OUT_AUG  = Path("data/matches/matches_15_20_1_aug.csv")  # <-- (opcional) con augment
 
