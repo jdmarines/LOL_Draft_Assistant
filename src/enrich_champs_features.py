@@ -46,7 +46,7 @@ def extract_damage_mix_from_text(text, dmg_conf):
     t = text
     m_hits = sum(1 for kw in dmg_conf["magic"] if kw in t)
     p_hits = sum(1 for kw in dmg_conf["physical"] if kw in t)
-    tr_hits = sum(1 for kw in dmg_conf["true"] if kw in t)
+    tr_hits = sum(1 for kw in dmg_conf["true_"] if kw in t)
     total = m_hits + p_hits + tr_hits
     if total == 0:
         return 0.0, 0.0, 0.0

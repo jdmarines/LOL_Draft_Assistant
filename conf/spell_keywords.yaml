@@ -41,7 +41,7 @@ signals:
   damage_types:
     magic: ["magic damage"]
     physical: ["physical damage"]
-    true: ["true damage"]
+    true_: ["true damage"]
 
 # Reglas adicionales (boolean flags)
 rules:
