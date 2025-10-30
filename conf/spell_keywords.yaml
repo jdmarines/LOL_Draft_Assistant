@@ -1,0 +1,85 @@
+# Señales de control / utilidad – buscamos en name / description / tooltip (lowercase)
+signals:
+
+  cc_hard:              # CC que inmoviliza o imposibilita accionar
+    keywords: ["stun", "root", "immobilize", "suppression", "suppress", "sleep", "fear", "taunt", "airborne", "knock up", "knockup", "knock-up", "pulverize", "charm"]
+    score: 1.0
+
+  cc_soft:              # CC blando
+    keywords: ["slow", "blind", "silence"]
+    score: 0.5
+
+  displacement:         # Desplazamientos impuestos (peel/engage)
+    keywords: ["knock back", "knockback", "push back", "pull", "drag", "displace", "toss", "flip", "headbutt", "hook", "yank"]
+    score: 0.75
+
+  engage:               # Inicio de pelea (aoe o pick fiable)
+    keywords: ["engage", "initiate", "charge", "dash to", "leap to", "lunge", "grapple", "hook", "charge forward", "unstoppable"]
+    score: 1.0
+
+  mobility:             # Movilidad propia (gapclose/escape)
+    keywords: ["dash", "leap", "blink", "teleport", "tunnel", "speed up", "movement speed", "haste"]
+    score: 0.5
+
+  peel_defense:         # Peel/defensa directa
+    keywords: ["shield", "barrier", "grant shield", "magic shield", "prevent disabling", "immunity to crowd control", "cleanse", "remove cc", "untargetable", "stasis", "invulnerable"]
+    score: 1.0
+
+  heal_sustain:
+    keywords: ["heal", "restore health", "life steal", "omnivamp", "drain"]
+    score: 0.5
+
+  zone_control:         # Control de zona persistente
+    keywords: ["zone", "area", "field", "zone control", "creates a field", "persistent", "ground burns", "wall", "trap", "turret", "plants", "soldiers", "zone enemies", "demarcated area"]
+    score: 0.75
+
+  execute:              # Ejecuciones (synergy con burst)
+    keywords: ["execute", "bonus damage to low health", "increased damage based on missing health"]
+    score: 0.5
+
+  # Detección de tipo de daño en textos (para phys_ratio/magic_ratio/true_ratio)
+  damage_types:
+    magic: ["magic damage"]
+    physical: ["physical damage"]
+    true: ["true damage"]
+
+# Reglas adicionales (boolean flags)
+rules:
+  aoe_keywords: ["nearby enemies", "area", "area around", "all nearby", "in a circle", "cone", "line area", "shockwave", "around her", "around him"]
+  point_and_click_keywords: ["target enemy champion", "targeted", "on target enemy", "on an enemy champion", "to target location"]  # (heurística)
+  projectile_keywords: ["projectile", "missile", "bolt", "arrow", "binding", "hook", "skillshot"]
+
+# Ponderaciones para componer scores finales por campeón
+weights:
+  cc_hard_w: 1.0
+  cc_soft_w: 0.5
+  displacement_w: 0.75
+  engage_w: 1.0
+  mobility_w: 0.5
+  peel_w: 1.0
+  zone_w: 0.75
+  heal_w: 0.5
+  execute_w: 0.5
+
+# Normalización (máximos razonables para escalar 0..1)
+normalization:
+  max_cc_contrib: 6       # p.ej., 6 contribuciones fuertes en todo el kit
+  max_engage_contrib: 4
+  max_peel_contrib: 4
+  max_zone_contrib: 4
+  max_mobility_contrib: 4
+
+# Campos numéricos que vale la pena extraer si existen en tooltips
+numeric_fields:
+  rootduration: "rootduration"
+  stunduration: "stunduration"
+  slowpercent: "slowpercent"
+  cooldown: "cooldown"      # a veces en arrays por nivel
+  range: "range"
+
+# Correcciones de nombres entre op.gg y Data Dragon (si hiciera falta)
+name_fixes:
+  "Kaisa": "Kai'Sa"
+  "KSante": "K'Sante"
+  "Jarvan IV": "Jarvan IV"
+  "Wukong": "Wukong"
