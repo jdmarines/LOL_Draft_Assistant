@@ -1,0 +1,49 @@
+Entrenamiento avanzado K-Fold
+- Archivo: data/processed/match_features_15_20_1.csv
+- Splits: 5
+- USE_DELTAS_ONLY=True
+- DROP_COUNTER_FEATURES=True
+
+[logreg]
+  accuracy_mean: 0.5065
+  accuracy_std: 0.0187
+  roc_auc_mean: 0.5284
+  roc_auc_std: 0.0201
+  log_loss_mean: 0.6949
+  log_loss_std: 0.0056
+  brier_mean: 0.2509
+  brier_std: 0.0028
+  f1_mean: 0.5113
+  f1_std: 0.0178
+
+[rf]
+  accuracy_mean: 0.5439
+  accuracy_std: 0.0240
+  roc_auc_mean: 0.5432
+  roc_auc_std: 0.0329
+  log_loss_mean: 0.7009
+  log_loss_std: 0.0133
+  brier_mean: 0.2534
+  brier_std: 0.0063
+  f1_mean: 0.5605
+  f1_std: 0.0165
+
+[xgb]
+  accuracy_mean: 0.5157
+  accuracy_std: 0.0294
+  roc_auc_mean: 0.5176
+  roc_auc_std: 0.0239
+  log_loss_mean: 0.8417
+  log_loss_std: 0.0398
+  brier_mean: 0.3005
+  brier_std: 0.0137
+  f1_mean: 0.5270
+  f1_std: 0.0177
+
+[rf_calibrated_global]
+  accuracy: 0.9777
+  roc_auc: 0.9982
+  log_loss: 0.4478
+  brier: 0.1356
+  f1: 0.9786
+

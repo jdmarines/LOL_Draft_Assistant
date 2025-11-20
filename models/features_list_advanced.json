@@ -1,0 +1,17 @@
+[
+  "Delta_cc_score_sum",
+  "Delta_engage_score_sum",
+  "Delta_peel_score_sum",
+  "Delta_zone_control_score_sum",
+  "Delta_tankiness_sum",
+  "Delta_attackrange_mean",
+  "Delta_attackrange_max",
+  "Delta_attackrange_min",
+  "Delta_range_top2_mean",
+  "Delta_magic_ratio_sum",
+  "Delta_phys_ratio_sum",
+  "Delta_win_rate_role_mean",
+  "Delta_pick_rate_role_mean",
+  "Delta_ban_rate_role_mean",
+  "Delta_meta_strength"
+]
