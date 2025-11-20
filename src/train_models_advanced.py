@@ -24,7 +24,7 @@ from xgboost import XGBClassifier
 # Config
 # -------------------------
 PROC_DIR = Path("data/processed")
-IN_PATH = PROC_DIR / "match_features_15_20_1.csv"
+IN_PATH = PROC_DIR / "match_features_synergy_15_20_1.csv"
 
 MODELS_DIR = Path("models")
 MODELS_DIR.mkdir(parents=True, exist_ok=True)

@@ -13,5 +13,8 @@
   "Delta_win_rate_role_mean",
   "Delta_pick_rate_role_mean",
   "Delta_ban_rate_role_mean",
-  "Delta_meta_strength"
+  "Delta_meta_strength",
+  "Delta_Synergy",
+  "Delta_vs",
+  "Delta_Total_SynergyVS"
 ]

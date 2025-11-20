@@ -1,23 +1,25 @@
-# src/build_pair_stats.py
-
 import numpy as np
 import pandas as pd
-from pathlib import Path
 from itertools import combinations
+from pathlib import Path
 
-DATA_DIR = Path("data/matches")
 PROC_DIR = Path("data/processed")
-MATCHES_PATH = DATA_DIR / "matches_15_20_1.csv"
+FEATS_PATH = PROC_DIR / "match_features_15_20_1.csv"
 OUT_PATH = PROC_DIR / "pair_stats.npz"
 
-TEAM_BLUE = ["BB1","BB2","BB3","BB4","BB5"]
-TEAM_RED  = ["RB1","RB2","RB3","RB4","RB5"]
+TEAM_BLUE = ["Blue_1", "Blue_2", "Blue_3", "Blue_4", "Blue_5"]
+TEAM_RED  = ["Red_1", "Red_2", "Red_3", "Red_4", "Red_5"]
 
 def main():
-    df = pd.read_csv(MATCHES_PATH)
-    # asumimos champion_id máximo razonable (puedes ajustarlo)
-    max_id = int(max(df[TEAM_BLUE + TEAM_RED].max()))
+    df = pd.read_csv(FEATS_PATH)
+
+    # Aseguramos tipos int
+    for c in TEAM_BLUE + TEAM_RED:
+        df[c] = df[c].astype(int)
+
+    max_id = int(df[TEAM_BLUE + TEAM_RED].max().max())
     n_champs = max_id + 1
+    print(f"n_champs detectados: {n_champs}")
 
     synergy_games = np.zeros((n_champs, n_champs), dtype=np.int32)
     synergy_wins  = np.zeros((n_champs, n_champs), dtype=np.int32)
@@ -30,7 +32,7 @@ def main():
         red  = [int(row[c]) for c in TEAM_RED]
         win_blue = int(row["Winner"])  # 1 = gana azul, 0 = gana rojo
 
-        # Synergy: pares dentro del mismo equipo (simétricos)
+        # Synergy interna: pares dentro de cada equipo
         for i, j in combinations(blue, 2):
             synergy_games[i, j] += 1
             synergy_games[j, i] += 1
@@ -41,19 +43,19 @@ def main():
         for i, j in combinations(red, 2):
             synergy_games[i, j] += 1
             synergy_games[j, i] += 1
-            if win_blue == 0:  # gana rojo
+            if win_blue == 0:
                 synergy_wins[i, j] += 1
                 synergy_wins[j, i] += 1
 
-        # VS: i de azul contra j de rojo
+        # VS: cada champ de azul contra cada champ de rojo
         for i in blue:
             for j in red:
                 vs_games[i, j] += 1
-                vs_games[j, i] += 1  # también cuenta la inversa si quieres simetría
+                vs_games[j, i] += 1  # simetría
                 if win_blue == 1:
-                    vs_wins[i, j] += 1    # victoria de i sobre j
+                    vs_wins[i, j] += 1
                 else:
-                    vs_wins[j, i] += 1    # victoria de j sobre i
+                    vs_wins[j, i] += 1
 
     PROC_DIR.mkdir(parents=True, exist_ok=True)
     np.savez_compressed(
@@ -63,7 +65,7 @@ def main():
         vs_games=vs_games,
         vs_wins=vs_wins,
     )
-    print(f"✅ Guardado {OUT_PATH} para n_champs={n_champs}")
+    print(f"✅ Guardado {OUT_PATH}")
 
 if __name__ == "__main__":
     main()
