@@ -14,7 +14,9 @@
   "Delta_pick_rate_role_mean",
   "Delta_ban_rate_role_mean",
   "Delta_meta_strength",
-  "Delta_Synergy",
-  "Delta_vs",
-  "Delta_Total_SynergyVS"
+  "Delta_counters_count",
+  "Delta_counters_adv",
+  "Delta_Synergy_loo",
+  "Delta_vs_loo",
+  "Delta_Total_SynergyVS_loo"
 ]

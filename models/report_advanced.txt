@@ -1,49 +1,49 @@
 Entrenamiento avanzado K-Fold
-- Archivo: data/processed/match_features_synergy_15_20_1.csv
+- Archivo: data/processed/match_features_synergy_loo_15_20_1.csv
 - Splits: 5
 - USE_DELTAS_ONLY=True
-- DROP_COUNTER_FEATURES=True
+- DROP_COUNTER_FEATURES=False
 
 [logreg]
-  accuracy_mean: 0.9902
-  accuracy_std: 0.0036
-  roc_auc_mean: 0.9997
-  roc_auc_std: 0.0002
-  log_loss_mean: 0.0272
-  log_loss_std: 0.0028
-  brier_mean: 0.0072
-  brier_std: 0.0011
-  f1_mean: 0.9904
-  f1_std: 0.0035
+  accuracy_mean: 0.5288
+  accuracy_std: 0.0284
+  roc_auc_mean: 0.5351
+  roc_auc_std: 0.0328
+  log_loss_mean: 0.6959
+  log_loss_std: 0.0108
+  brier_mean: 0.2513
+  brier_std: 0.0052
+  f1_mean: 0.5335
+  f1_std: 0.0360
 
 [rf]
-  accuracy_mean: 0.9915
-  accuracy_std: 0.0039
-  roc_auc_mean: 0.9991
-  roc_auc_std: 0.0006
-  log_loss_mean: 0.0351
-  log_loss_std: 0.0085
-  brier_mean: 0.0081
-  brier_std: 0.0031
-  f1_mean: 0.9916
-  f1_std: 0.0039
+  accuracy_mean: 0.5281
+  accuracy_std: 0.0315
+  roc_auc_mean: 0.5320
+  roc_auc_std: 0.0315
+  log_loss_mean: 0.7013
+  log_loss_std: 0.0122
+  brier_mean: 0.2538
+  brier_std: 0.0058
+  f1_mean: 0.5425
+  f1_std: 0.0305
 
 [xgb]
-  accuracy_mean: 0.9928
-  accuracy_std: 0.0052
-  roc_auc_mean: 0.9991
-  roc_auc_std: 0.0008
-  log_loss_mean: 0.0314
-  log_loss_std: 0.0133
-  brier_mean: 0.0069
-  brier_std: 0.0037
-  f1_mean: 0.9929
-  f1_std: 0.0051
+  accuracy_mean: 0.5052
+  accuracy_std: 0.0200
+  roc_auc_mean: 0.5116
+  roc_auc_std: 0.0264
+  log_loss_mean: 0.8538
+  log_loss_std: 0.0439
+  brier_mean: 0.3048
+  brier_std: 0.0144
+  f1_mean: 0.5137
+  f1_std: 0.0199
 
 [logreg_calibrated_global]
-  accuracy: 0.9941
-  roc_auc: 0.9998
-  log_loss: 0.0182
-  brier: 0.0056
-  f1: 0.9942
+  accuracy: 0.5550
+  roc_auc: 0.5896
+  log_loss: 0.6805
+  brier: 0.2439
+  f1: 0.6083
 

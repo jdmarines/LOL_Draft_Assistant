@@ -24,7 +24,8 @@ from xgboost import XGBClassifier
 # Config
 # -------------------------
 PROC_DIR = Path("data/processed")
-IN_PATH = PROC_DIR / "match_features_synergy_15_20_1.csv"
+IN_PATH = PROC_DIR / "match_features_synergy_loo_15_20_1.csv"
+
 
 MODELS_DIR = Path("models")
 MODELS_DIR.mkdir(parents=True, exist_ok=True)
@@ -38,7 +39,7 @@ N_SPLITS = 5
 
 # FLAGS
 USE_DELTAS_ONLY = True          # usar solo columnas Delta_*
-DROP_COUNTER_FEATURES = True    # quitar columnas con "counter" en el nombre
+DROP_COUNTER_FEATURES = False    # quitar columnas con "counter" en el nombre
 
 # -------------------------
 # Utils
@@ -245,18 +246,43 @@ def train_kfold_models(X, y, feature_names):
         print(name, "->", m)
 
 def main():
-    # Cargar dataset completo
     df = pd.read_csv(IN_PATH)
-    assert "Winner" in df.columns, "Falta Winner"
-
     feature_cols = select_features(df)
-    print(f"🔧 Features seleccionadas ({len(feature_cols)}):")
-    print(feature_cols[:30], "..." if len(feature_cols) > 30 else "")
+
+    print("🔧 Features usadas:", feature_cols)
 
     X = df[feature_cols].values
     y = df["Winner"].astype(int).values
 
+    # 1) Entrenamiento con K-Fold (lo que ya tenías)
     train_kfold_models(X, y, feature_cols)
+
+    # 2) ENTRENAMIENTO FINAL DE LOGISTIC REGRESSION CON TODO EL DATASET
+    print("\n🧩 Entrenando modelo final (Logistic Regression) con TODO el dataset...")
+
+    classes = np.unique(y)
+    class_weights = compute_class_weight(class_weight="balanced", classes=classes, y=y)
+    cw_dict = {int(c): float(w) for c, w in zip(classes, class_weights)}
+
+    logreg_final = LogisticRegression(
+        solver="liblinear",
+        class_weight=cw_dict,
+        max_iter=1000,
+        random_state=RANDOM_STATE,
+    )
+    logreg_final.fit(X, y)
+
+    # Guardamos el modelo y la lista de features
+    joblib.dump(
+        {
+            "model": logreg_final,
+            "features": feature_cols,
+        },
+        MODELS_DIR / "logreg_model.pkl",
+    )
+
+    print(f"✅ Modelo final (LogReg) guardado en: {MODELS_DIR / 'logreg_model.pkl'}")
+
 
 if __name__ == "__main__":
     main()
