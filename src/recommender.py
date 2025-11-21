@@ -588,8 +588,8 @@ if __name__ == "__main__":
     # Ejemplo: estado parcial de draft
     # Azul: Orianna, Jinx
     # Rojo: Malphite
-    blue = ["Orianna", "Jinx"]
-    red = ["Malphite"]
+    blue = ["Aurora", "Miss Fortune"]
+    red = ["Amumu"]
 
     print("🔵 Recomendaciones para BLUE (siguiente pick):")
     recs_blue = recommend_for(blue, red, side="blue", top_k=5)
