@@ -194,12 +194,24 @@ def train_kfold_models(X, y, feature_names):
             agg[f"{k}_std"] = float(np.std(vals))
         metrics_summary[model_name] = agg
 
-    # Calibración isotónica del mejor modelo según ROC AUC mean
+    # Calibración isotónica del mejor modelo según ACCURACY mean
     best_model_name = max(
         metrics_summary.items(),
-        key=lambda kv: kv[1]["roc_auc_mean"]
+        key=lambda kv: kv[1]["accuracy_mean"]
     )[0]
-    print(f"\n⭐ Mejor modelo por ROC AUC (mean): {best_model_name}")
+    print(f"\n⭐ Mejor modelo por ACCURACY (mean): {best_model_name}: {best_model_name}")
+
+    # Elige el objeto a calibrar
+    base_model = best_rf if best_model_name == "rf" else (
+        best_xgb if best_model_name == "xgb" else best_logreg
+    )
+
+        # Calibración isotónica del mejor modelo según ACCURACY mean
+    best_model_name = max(
+        metrics_summary.items(),
+        key=lambda kv: kv[1]["accuracy_mean"]
+    )[0]
+    print(f"\n⭐ Mejor modelo por ACCURACY (mean): {best_model_name}")
 
     # Elige el objeto a calibrar
     base_model = best_rf if best_model_name == "rf" else (
@@ -215,14 +227,25 @@ def train_kfold_models(X, y, feature_names):
     cal_model.fit(X, y)
 
     # Métrica global post-calibración (out-of-sample aprox usando CV interno)
-    # Aquí, para referencia, evaluamos sobre el mismo X,y (ojo: optimista)
     proba_cal = cal_model.predict_proba(X)[:, 1]
     metrics_cal = summarize_metrics(y, proba_cal)
     metrics_summary[f"{best_model_name}_calibrated_global"] = metrics_cal
 
-    # Guardar modelos
+    # Guardar modelos individuales (como antes)
     joblib.dump(base_model, MODELS_DIR / f"{best_model_name}_base_cv.joblib")
     joblib.dump(cal_model, MODELS_DIR / f"{best_model_name}_calibrated_cv.joblib")
+
+    # 🔹 NUEVO: guardar el mejor modelo calibrado en un bundle para el recomendador
+    joblib.dump(
+        {
+            "model": cal_model,
+            "features": feature_names,
+            "metric": best_model_name,
+            "calibrated": True,
+        },
+        MODELS_DIR / "best_recommender_model_calibrated.pkl",
+    )
+    print("📈 Modelo calibrado guardado en best_recommender_model_calibrated.pkl")
 
     # Guardar features
     with open(FEATURES_JSON, "w", encoding="utf-8") as f:
@@ -245,6 +268,7 @@ def train_kfold_models(X, y, feature_names):
     for name, m in metrics_summary.items():
         print(name, "->", m)
 
+
 def main():
     df = pd.read_csv(IN_PATH)
     feature_cols = select_features(df)
@@ -254,34 +278,8 @@ def main():
     X = df[feature_cols].values
     y = df["Winner"].astype(int).values
 
-    # 1) Entrenamiento con K-Fold (lo que ya tenías)
+    # 1) Entrenamiento con K-Fold (incluye calibración y guardado del mejor modelo)
     train_kfold_models(X, y, feature_cols)
-
-    # 2) ENTRENAMIENTO FINAL DE LOGISTIC REGRESSION CON TODO EL DATASET
-    print("\n🧩 Entrenando modelo final (Logistic Regression) con TODO el dataset...")
-
-    classes = np.unique(y)
-    class_weights = compute_class_weight(class_weight="balanced", classes=classes, y=y)
-    cw_dict = {int(c): float(w) for c, w in zip(classes, class_weights)}
-
-    logreg_final = LogisticRegression(
-        solver="liblinear",
-        class_weight=cw_dict,
-        max_iter=1000,
-        random_state=RANDOM_STATE,
-    )
-    logreg_final.fit(X, y)
-
-    # Guardamos el modelo y la lista de features
-    joblib.dump(
-        {
-            "model": logreg_final,
-            "features": feature_cols,
-        },
-        MODELS_DIR / "logreg_model.pkl",
-    )
-
-    print(f"✅ Modelo final (LogReg) guardado en: {MODELS_DIR / 'logreg_model.pkl'}")
 
 
 if __name__ == "__main__":

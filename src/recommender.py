@@ -29,7 +29,7 @@ ROOT = Path(__file__).resolve().parents[1]  # /workspaces/LOL_Draft_Assistant
 DATA_PROC = ROOT / "data" / "processed"
 MODELS_DIR = ROOT / "models"
 
-MODEL_PATH = MODELS_DIR / "logreg_model.pkl"
+MODEL_PATH = MODELS_DIR / "best_recommender_model_calibrated.pkl"
 CHAMPS_PATH = DATA_PROC / "champs_extended_15_20_1.csv"
 PAIR_STATS_PATH = DATA_PROC / "pair_stats.npz"  # synergy / vs (global)
 
