@@ -36,6 +36,80 @@ def normalize_selection(selection_list):
     """Quita '(vacío)' y devuelve solo los nombres de campeones."""
     return [c for c in selection_list if c != "(vacío)"]
 
+def coach_summary(feats: dict) -> str:
+    """
+    Devuelve un texto tipo coach en función de los deltas de la compo
+    (siempre interpretando desde el lado BLUE).
+    """
+    lines = []
+
+    def val(k, default=0.0):
+        return float(feats.get(k, default))
+
+    d_cc    = val("Delta_cc_score_sum")
+    d_eng   = val("Delta_engage_score_sum")
+    d_peel  = val("Delta_peel_score_sum")
+    d_zone  = val("Delta_zone_control_score_sum")
+    d_tank  = val("Delta_tankiness_sum")
+    d_mag   = val("Delta_magic_ratio_sum")
+    d_phys  = val("Delta_phys_ratio_sum")
+    d_range = val("Delta_attackrange_mean")
+    d_meta  = val("Delta_meta_strength")
+
+    # CC
+    if d_cc > 0.5:
+        lines.append("BLUE tiene **más CC total** que RED, lo que favorece peleas largas y picks aislados.")
+    elif d_cc < -0.5:
+        lines.append("RED tiene **más CC total**, por lo que BLUE debe cuidar los ángulos de entrada y visión.")
+
+    # Engage
+    if d_eng > 0.5:
+        lines.append("La compo BLUE cuenta con **mejores herramientas de engage**, puede proponer las peleas.")
+    elif d_eng < -0.5:
+        lines.append("BLUE tiene **menos engage directo**; conviene jugar a counter-engage o front-to-back.")
+
+    # Peel
+    if d_peel > 0.5:
+        lines.append("BLUE posee **mejor peel y herramientas defensivas**, sus carries deberían estar más protegidos.")
+    elif d_peel < -0.5:
+        lines.append("RED tiene **mejor peel**, lo que dificulta ejecutar dives profundos contra sus carries.")
+
+    # Zona / control de oleadas
+    if d_zone > 0.5:
+        lines.append("BLUE destaca en **control de zona** (trampas, zonas, poke), ideal para objetivos neutrales.")
+    elif d_zone < -0.5:
+        lines.append("RED controla mejor el espacio, BLUE debería evitar pelear en zonas estrechas u objetivos forzados.")
+
+    # Tankiness
+    if d_tank > 200:
+        lines.append("BLUE cuenta con **más frontline/tankiness**, puede aguantar peleas extendidas.")
+    elif d_tank < -200:
+        lines.append("RED tiene **frontline más sólida**, BLUE debería apoyarse en rango, poke o kiteo.")
+
+    # Daño mágico / físico
+    if d_mag > 0.5:
+        lines.append("BLUE está más cargado hacia **daño mágico**, es clave que RED arme resistencia mágica.")
+    elif d_phys > 0.5:
+        lines.append("BLUE está más cargado hacia **daño físico**, RED debe priorizar armadura.")
+
+    # Rango
+    if d_range > 75:
+        lines.append("La compo BLUE tiene **mayor rango promedio**, puede desgastar antes de entrar en melee.")
+    elif d_range < -75:
+        lines.append("RED tiene **mejor rango**, BLUE necesita flancos, TP o engages explosivos.")
+
+    # Meta strength
+    if d_meta > 0.05:
+        lines.append("En términos de **meta**, BLUE está ligeramente favorecido según estadísticas globales.")
+    elif d_meta < -0.05:
+        lines.append("La compo de RED está más alineada con el **meta actual** en win/pick/ban rates.")
+
+    if not lines:
+        return "Las composiciones están bastante equilibradas; ningún eje táctico destaca de forma extrema."
+
+    return " ".join(lines)
+
+
 # =====================================
 # UI
 # =====================================
@@ -46,6 +120,7 @@ st.markdown(
     Versión actual:
     - **Sin counters de OP.GG** (todas las features de counters fijas en 0).
     - **Placeholders neutros internos** solo para completar los equipos hasta 5 campeones.
+    - Motor entrenado con features de composición (CC, engage, rango, tankiness, daño físico/mágico, meta).
     """
 )
 
@@ -78,7 +153,7 @@ st.divider()
 
 st.markdown(
     """
-    - Para **evaluar un draft completo**, selecciona hasta 5 campeones por lado y pulsa **Calcular probabilidad**.
+    - Para **evaluar un draft completo**, selecciona hasta 5 campeones por lado y pulsa **Calcular probabilidad**.  
     - Para **ver recomendaciones top-5**, usa **máximo 4 campeones por lado** (como si el draft estuviera en progreso).
     """
 )
@@ -95,18 +170,46 @@ if st.button("🔍 Calcular probabilidad y recomendaciones"):
         p_red = 1.0 - p_blue
 
         st.markdown("## 📊 Resultado global del draft")
+
         c1, c2 = st.columns(2)
         with c1:
             st.metric("Probabilidad de victoria BLUE", f"{p_blue*100:.1f}%")
         with c2:
             st.metric("Probabilidad de victoria RED", f"{p_red*100:.1f}%")
 
+        # Barra visual sencilla
+        st.progress(p_blue)  # interpreta p_blue en [0,1]
+
+        # ==========================
+        # 1.1 PANEL TÁCTICO DE FEATURES
+        # ==========================
+        st.markdown("### ⚙️ Resumen táctico de la composición (BLUE vs RED)")
+
+        colA, colB = st.columns(2)
+
+        with colA:
+            st.metric("Δ CC total (BLUE-RED)", f"{feats.get('Delta_cc_score_sum', 0.0):.2f}")
+            st.metric("Δ Engage (BLUE-RED)", f"{feats.get('Delta_engage_score_sum', 0.0):.2f}")
+            st.metric("Δ Peel/Protección", f"{feats.get('Delta_peel_score_sum', 0.0):.2f}")
+            st.metric("Δ Control de zona", f"{feats.get('Delta_zone_control_score_sum', 0.0):.2f}")
+
+        with colB:
+            st.metric("Δ Tankiness", f"{feats.get('Delta_tankiness_sum', 0.0):.1f}")
+            st.metric("Δ Rango medio", f"{feats.get('Delta_attackrange_mean', 0.0):.1f}")
+            st.metric("Δ Daño mágico", f"{feats.get('Delta_magic_ratio_sum', 0.0):.2f}")
+            st.metric("Δ Daño físico", f"{feats.get('Delta_phys_ratio_sum', 0.0):.2f}")
+
+        # ==========================
+        # 1.2 TEXTO ESTILO COACH
+        # ==========================
+        resumen = coach_summary(feats)
+        st.markdown(f"**Comentario tipo coach:** {resumen}")
+
         # ==========================
         # 2) RECOMENDACIONES TOP-5
         # ==========================
         st.markdown("## 🧠 Recomendaciones de siguiente pick (Top-5)")
 
-        # Restricción para evitar drafts con 6 campeones por lado
         if len(blue_sel) > 4 or len(red_sel) > 4:
             st.warning(
                 "Para ver recomendaciones top-5, usa máximo **4 campeones por lado**.\n"
