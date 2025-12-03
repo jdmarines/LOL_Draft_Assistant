@@ -114,7 +114,7 @@ def coach_summary(feats: dict) -> str:
 # UI
 # =====================================
 
-st.title("🎮 LoL Draft Recommender — MVP")
+st.title("🎮 LoL Draft Recommender — MVP V2")
 st.markdown(
     """
     Versión actual:
